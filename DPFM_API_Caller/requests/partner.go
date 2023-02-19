@@ -1,6 +1,6 @@
 package requests
 
-type HeaderPartner struct {
+type Partner struct {
 	InvoiceDocument         int     `json:"InvoiceDocument"`
 	PartnerFunction         string  `json:"PartnerFunction"`
 	BusinessPartner         int     `json:"BusinessPartner"`

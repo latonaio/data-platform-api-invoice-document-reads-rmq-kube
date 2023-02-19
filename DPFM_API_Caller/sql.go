@@ -4,6 +4,7 @@ import (
 	"context"
 	dpfm_api_input_reader "data-platform-api-invoice-document-reads-rmq-kube/DPFM_API_Input_Reader"
 	dpfm_api_output_formatter "data-platform-api-invoice-document-reads-rmq-kube/DPFM_API_Output_Formatter"
+	"strings"
 	"sync"
 
 	"github.com/latonaio/golang-logging-library-for-data-platform/logger"
@@ -18,38 +19,33 @@ func (c *DPFMAPICaller) readSqlProcess(
 	errs *[]error,
 	log *logger.Logger,
 ) interface{} {
-	var header *dpfm_api_output_formatter.Header
-	var headerPartner *dpfm_api_output_formatter.HeaderPartner
-	var headerPartnerContact *dpfm_api_output_formatter.HeaderPartnerContact
-	var address *dpfm_api_output_formatter.Address
-	var item *dpfm_api_output_formatter.Item
-	var itemPartner *dpfm_api_output_formatter.ItemPartner
-	var itemPricingElement *dpfm_api_output_formatter.ItemPricingElement
+	var header *[]dpfm_api_output_formatter.Header
+	var item *[]dpfm_api_output_formatter.Item
+	var address *[]dpfm_api_output_formatter.Address
+	var headerDoc *[]dpfm_api_output_formatter.HeaderDoc
+	var partner *[]dpfm_api_output_formatter.Partner
+	var itemPricingElement *[]dpfm_api_output_formatter.ItemPricingElement
 	for _, fn := range accepter {
 		switch fn {
 		case "Header":
 			func() {
 				header = c.Header(mtx, input, output, errs, log)
 			}()
-		case "HeaderPartner":
+		case "Item":
 			func() {
-				headerPartner = c.HeaderPartner(mtx, input, output, errs, log)
-			}()
-		case "HeaderPartnerContact":
-			func() {
-				headerPartnerContact = c.HeaderPartnerContact(mtx, input, output, errs, log)
+				item = c.Item(mtx, input, output, errs, log)
 			}()
 		case "Address":
 			func() {
 				address = c.Address(mtx, input, output, errs, log)
 			}()
-		case "Item":
+		case "HeaderDoc":
 			func() {
-				item = c.Item(mtx, input, output, errs, log)
+				headerDoc = c.HeaderDoc(mtx, input, output, errs, log)
 			}()
-		case "ItemPartner":
+		case "Partner":
 			func() {
-				itemPartner = c.ItemPartner(mtx, input, output, errs, log)
+				partner = c.Partner(mtx, input, output, errs, log)
 			}()
 		case "ItemPricingElement":
 			func() {
@@ -60,13 +56,12 @@ func (c *DPFMAPICaller) readSqlProcess(
 	}
 
 	data := &dpfm_api_output_formatter.Message{
-		Header:               header,
-		HeaderPartner:        headerPartner,
-		HeaderPartnerContact: headerPartnerContact,
-		Address:              address,
-		Item:                 item,
-		ItemPartner:          itemPartner,
-		ItemPricingElement:   itemPricingElement,
+		Header:             header,
+		Item:               item,
+		Address:            address,
+		HeaderDoc:          headerDoc,
+		Partner:            partner,
+		ItemPricingElement: itemPricingElement,
 	}
 
 	return data
@@ -78,15 +73,11 @@ func (c *DPFMAPICaller) Header(
 	output *dpfm_api_output_formatter.SDC,
 	errs *[]error,
 	log *logger.Logger,
-) *dpfm_api_output_formatter.Header {
+) *[]dpfm_api_output_formatter.Header {
 	invoiceDocument := input.Header.InvoiceDocument
 
 	rows, err := c.db.Query(
-		`SELECT InvoiceDocument, CreationDate, LastChangeDate, BillToParty, BillFromParty, BillToCountry, 
-		BillFromCountry, InvoiceDocumentDate, InvoiceDocumentTime, InvoicePeriodStartDate, InvoicePeriodEndDate, 
-		AccountingPostingDate, InvoiceDocumentIsCancelled, CancelledInvoiceDocument, IsExportImportDelivery, HeaderBillingIsConfirmed, 
-		HeaderBillingConfStatus, TotalNetAmount, TotalTaxAmount, TotalGrossAmount, TransactionCurrency, Incoterms, PaymentTerms, DueCalculationBaseDate, 
-		PaymentDueDate, NetPaymentDays, PaymentMethod, HeaderPaymentBlockStatus, ExternalReferenceDocument, DocumentHeaderText, HeaderPaymentRequisitionIsCreated
+		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_header_data
 		WHERE InvoiceDocument = ?;`, invoiceDocument,
 	)
@@ -95,7 +86,7 @@ func (c *DPFMAPICaller) Header(
 		return nil
 	}
 
-	data, err := dpfm_api_output_formatter.ConvertToHeader(input, rows)
+	data, err := dpfm_api_output_formatter.ConvertToHeader(rows)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
@@ -104,61 +95,35 @@ func (c *DPFMAPICaller) Header(
 	return data
 }
 
-func (c *DPFMAPICaller) HeaderPartner(
+func (c *DPFMAPICaller) Partner(
 	mtx *sync.Mutex,
 	input *dpfm_api_input_reader.SDC,
 	output *dpfm_api_output_formatter.SDC,
 	errs *[]error,
 	log *logger.Logger,
-) *dpfm_api_output_formatter.HeaderPartner {
+) *[]dpfm_api_output_formatter.Partner {
+	var args []interface{}
 	invoiceDocument := input.Header.InvoiceDocument
-	partnerFunction := input.Header.HeaderPartner.PartnerFunction
-	businessPartner := input.Header.HeaderPartner.BusinessPartner
+	partner := input.Header.Partner
+
+	cnt := 0
+	for _, v := range partner {
+		args = append(args, invoiceDocument, v.PartnerFunction, v.BusinessPartner)
+		cnt++
+	}
+	repeat := strings.Repeat("(?,?,?),", cnt-1) + "(?,?,?)"
 
 	rows, err := c.db.Query(
-		`SELECT InvoiceDocument, PartnerFunction, BusinessPartner, BusinessPartnerFullName, BusinessPartnerName, 
-		Organization, Country, Language, Currency, ExternalDocumentID, AddressID
-		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_header_partner_data
-		WHERE (InvoiceDocument, PartnerFunction, BusinessPartner) = (?, ?, ?);`, invoiceDocument, partnerFunction, businessPartner,
+		`SELECT *
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_partner_data
+		WHERE (InvoiceDocument, PartnerFunction, BusinessPartner) IN ( `+repeat+` );`, args...,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
 	}
 
-	data, err := dpfm_api_output_formatter.ConvertToHeaderPartner(input, rows)
-	if err != nil {
-		*errs = append(*errs, err)
-		return nil
-	}
-
-	return data
-}
-
-func (c *DPFMAPICaller) HeaderPartnerContact(
-	mtx *sync.Mutex,
-	input *dpfm_api_input_reader.SDC,
-	output *dpfm_api_output_formatter.SDC,
-	errs *[]error,
-	log *logger.Logger,
-) *dpfm_api_output_formatter.HeaderPartnerContact {
-	invoiceDocument := input.Header.InvoiceDocument
-	partnerFunction := input.Header.HeaderPartner.PartnerFunction
-	businessPartner := input.Header.HeaderPartner.BusinessPartner
-	contactID := input.Header.HeaderPartner.HeaderPartnerContact.ContactID
-
-	rows, err := c.db.Query(
-		`SELECT InvoiceDocument, PartnerFunction, BusinessPartner, ContactID, ContactPersonName, EmailAddress, PhoneNumber, 
-		MobilePhoneNumber, FaxNumber, ContactTag1, ContactTag2, ContactTag3, ContactTag4
-		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_header_partner_contact_data
-		WHERE (InvoiceDocument, PartnerFunction, BusinessPartner, ContactID) = (?, ?, ?, ?);`, invoiceDocument, partnerFunction, businessPartner, contactID,
-	)
-	if err != nil {
-		*errs = append(*errs, err)
-		return nil
-	}
-
-	data, err := dpfm_api_output_formatter.ConvertToHeaderPartnerContact(input, rows)
+	data, err := dpfm_api_output_formatter.ConvertToPartner(rows)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
@@ -173,22 +138,29 @@ func (c *DPFMAPICaller) Address(
 	output *dpfm_api_output_formatter.SDC,
 	errs *[]error,
 	log *logger.Logger,
-) *dpfm_api_output_formatter.Address {
+) *[]dpfm_api_output_formatter.Address {
+	var args []interface{}
 	invoiceDocument := input.Header.InvoiceDocument
-	addressID := input.Header.Address.AddressID
+	address := input.Header.Address
+
+	cnt := 0
+	for _, v := range address {
+		args = append(args, invoiceDocument, v.AddressID)
+		cnt++
+	}
+	repeat := strings.Repeat("(?,?),", cnt-1) + "(?,?)"
 
 	rows, err := c.db.Query(
-		`SELECT InvoiceDocument, AddressID, PostalCode, LocalRegion, Country, District, StreetName, CityName, 
-		Building, Floor, Room
+		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_address_data
-		WHERE (InvoiceDocument, AddressID) = (?, ?);`, invoiceDocument, addressID,
+		WHERE (InvoiceDocument, AddressID) IN ( `+repeat+` );`, args...,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
 	}
 
-	data, err := dpfm_api_output_formatter.ConvertToAddress(input, rows)
+	data, err := dpfm_api_output_formatter.ConvertToAddress(rows)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
@@ -203,32 +175,28 @@ func (c *DPFMAPICaller) Item(
 	output *dpfm_api_output_formatter.SDC,
 	errs *[]error,
 	log *logger.Logger,
-) *dpfm_api_output_formatter.Item {
+) *[]dpfm_api_output_formatter.Item {
+	var args []interface{}
 	invoiceDocument := input.Header.InvoiceDocument
-	invoiceDocumentItem := input.Header.Item.InvoiceDocumentItem
+	item := input.Header.Item
 
+	cnt := 0
+	for _, v := range item {
+		args = append(args, invoiceDocument, v.InvoiceDocumentItem)
+		cnt++
+	}
+	repeat := strings.Repeat("(?,?),", cnt-1) + "(?,?)"
 	rows, err := c.db.Query(
-		`SELECT InvoiceDocument, InvoiceDocumentItem, DocumentItemCategory, InvoiceDocumentItemText, CreationDate, 
-		CreationTime, ItemBillingIsConfirmed, ItemBillingConfStatus, Buyer, Seller, DeliverToParty, DeliverFromParty, 
-		ProductStandardID, Batch, Product, ProductGroup, ProductionPlantPartnerFunction, ProductionPlantBusinessPartner, 
-		ProductionPlant, ProductionPlantStorageLocation, IssuingPlantPartnerFunction, IssuingPlantBusinessPartner, 
-		IssuingPlant, IssuingPlantStorageLocation, ReceivingPlantPartnerFunction, ReceivingPlantBusinessPartner, 
-		ReceivingPlant, ReceivingPlantStorageLocation, ServicesRenderedDate, InvoiceQuantity, InvoiceQuantityUnit, 
-		InvoiceQuantityInBaseUnit, BaseUnit, ActualGoodsIssueDate, ActualGoodsIssueTime, ActualGoodsReceiptDate, 
-		ActualGoodsReceiptTime, ItemGrossWeight, ItemNetWeight, ItemWeightUnit, NetAmount, TaxAmount, GrossAmount, 
-		GoodsIssueOrReceiptSlipNumber, TransactionCurrency, PricingDate, ProductTaxClassification, Project, OrderID, 
-		OrderItem, OrderType, ContractType, OrderVaridityStartDate, OrderVaridityEndDate, InvoiceScheduleStartDate, 
-		InvoiceScheduleEndDate, DeliveryDocument, DeliveryDocumentItem, OriginDocument, OriginDocumentItem, ReferenceDocument, 
-		ReferenceDocumentItem, ReferenceDocumentType, ExternalReferenceDocument, ExternalReferenceDocumentItem, TaxCode, TaxRate, CountryOfOrigin
+		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_item_data
-		WHERE (InvoiceDocument, InvoiceDocumentItem) = (?, ?);`, invoiceDocument, invoiceDocumentItem,
+		WHERE (InvoiceDocument, InvoiceDocumentItem) IN ( `+repeat+` );`, args...,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
 	}
 
-	data, err := dpfm_api_output_formatter.ConvertToItem(input, rows)
+	data, err := dpfm_api_output_formatter.ConvertToItem(rows)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
@@ -237,29 +205,35 @@ func (c *DPFMAPICaller) Item(
 	return data
 }
 
-func (c *DPFMAPICaller) ItemPartner(
+func (c *DPFMAPICaller) HeaderDoc(
 	mtx *sync.Mutex,
 	input *dpfm_api_input_reader.SDC,
 	output *dpfm_api_output_formatter.SDC,
 	errs *[]error,
 	log *logger.Logger,
-) *dpfm_api_output_formatter.ItemPartner {
+) *[]dpfm_api_output_formatter.HeaderDoc {
+	var args []interface{}
 	invoiceDocument := input.Header.InvoiceDocument
-	invoiceDocumentItem := input.Header.Item.InvoiceDocumentItem
-	partnerFunction := input.Header.Item.ItemPartner.PartnerFunction
-	businessPartner := input.Header.Item.ItemPartner.BusinessPartner
+	headerDoc := input.Header.HeaderDoc
+
+	cnt := 0
+	for _, v := range headerDoc {
+		args = append(args, invoiceDocument, v.DocType, v.DocVersionID, v.DocID)
+		cnt++
+	}
+	repeat := strings.Repeat("(?,?,?,?),", cnt-1) + "(?,?,?,?)"
 
 	rows, err := c.db.Query(
-		`SELECT InvoiceDocument, InvoiceDocumentItem, PartnerFunction, BusinessPartner
-		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_item_partner_data
-		WHERE (InvoiceDocument, InvoiceDocumentItem, PartnerFunction, BusinessPartner) = (?, ?, ?, ?);`, invoiceDocument, invoiceDocumentItem, partnerFunction, businessPartner,
+		`SELECT *
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_header_doc_data
+		WHERE (InvoiceDocument, DocType, DocVersionID, DocID) IN ( `+repeat+` );`, args...,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
 	}
 
-	data, err := dpfm_api_output_formatter.ConvertToItemPartner(input, rows)
+	data, err := dpfm_api_output_formatter.ConvertToHeaderDoc(rows)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
@@ -274,24 +248,32 @@ func (c *DPFMAPICaller) ItemPricingElement(
 	output *dpfm_api_output_formatter.SDC,
 	errs *[]error,
 	log *logger.Logger,
-) *dpfm_api_output_formatter.ItemPricingElement {
+) *[]dpfm_api_output_formatter.ItemPricingElement {
+	var args []interface{}
 	invoiceDocument := input.Header.InvoiceDocument
-	invoiceDocumentItem := input.Header.Item.InvoiceDocumentItem
-	pricingProcedureCounter := input.Header.Item.ItemPricingElement.PricingProcedureCounter
+	item := input.Header.Item
+
+	cnt := 0
+	for _, v := range item {
+		itemPricingElement := v.ItemPricingElement
+		for _, w := range itemPricingElement {
+			args = append(args, invoiceDocument, v.InvoiceDocumentItem, w.PricingProcedureCounter)
+		}
+		cnt++
+	}
+	repeat := strings.Repeat("(?,?,?),", cnt-1) + "(?,?,?)"
 
 	rows, err := c.db.Query(
-		`SELECT InvoiceDocument, InvoiceDocumentItem, PricingProcedureCounter, ConditionType, PricingDate, 
-		ConditionRateValue, ConditionCurrency, ConditionQuantity, ConditionQuantityUnit, ConditionRecord, 
-		ConditionSequentialNumber, TaxCode, ConditionAmount, TransactionCurrency, ConditionIsManuallyChanged
+		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_item_pricing_element_data
-		WHERE (InvoiceDocument, InvoiceDocumentItem, PricingProcedureCounter) = (?, ?, ?);`, invoiceDocument, invoiceDocumentItem, pricingProcedureCounter,
+		WHERE (InvoiceDocument, InvoiceDocumentItem, PricingProcedureCounter) IN ( `+repeat+` );`, args...,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
 	}
 
-	data, err := dpfm_api_output_formatter.ConvertToItemPricingElement(input, rows)
+	data, err := dpfm_api_output_formatter.ConvertToItemPricingElement(rows)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil

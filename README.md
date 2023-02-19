@@ -19,12 +19,9 @@ APIサービス URL: https://xxx.xxx.io/api/API_INVOICE_DOCUMENT_SRV/reads/
 data-platform-api-invoice-document-reads-rmq-kube には、次の API をコールするためのリソースが含まれています。  
 
 * A_Header（データ連携基盤 請求伝票 - ヘッダデータ）
-* A_HeaderPDF（データ連携基盤 請求伝票 - ヘッダPDFデータ）
-* A_HeaderPartner（データ連携基盤 請求伝票 - ヘッダ取引先データ）
-* A_HeaderPartnerContact（データ連携基盤 請求伝票 - ヘッダ取引先コンタクトデータ）
+* A_Partner（データ連携基盤 請求伝票 - 取引先データ）
 * A_Address（データ連携基盤 請求伝票 - 住所データ）
 * A_Item（データ連携基盤 請求伝票 - 明細データ）
-* A_ItemPartner（データ連携基盤 請求伝票 - 明細取引先データ）
 * A_ItemPricingElement（データ連携基盤 請求伝票 - 明細価格決定要素データ）
  
 
