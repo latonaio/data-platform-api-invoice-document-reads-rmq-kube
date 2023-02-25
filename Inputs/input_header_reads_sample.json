@@ -53,7 +53,7 @@
 		"DocumentHeaderText": "Test",
 		"HeaderPaymentBlockStatus": null,
 		"HeaderPaymentRequisitionIsCreated": null,
-		"InvoiceDocumentIsCancelled": null,
+		"IsCancelled": null,
 		"CancelledInvoiceDocument": null,
 		"Partner": [
 			{

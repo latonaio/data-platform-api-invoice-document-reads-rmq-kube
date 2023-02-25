@@ -4,6 +4,7 @@ import (
 	"context"
 	dpfm_api_input_reader "data-platform-api-invoice-document-reads-rmq-kube/DPFM_API_Input_Reader"
 	dpfm_api_output_formatter "data-platform-api-invoice-document-reads-rmq-kube/DPFM_API_Output_Formatter"
+	"fmt"
 	"strings"
 	"sync"
 
@@ -31,9 +32,17 @@ func (c *DPFMAPICaller) readSqlProcess(
 			func() {
 				header = c.Header(mtx, input, output, errs, log)
 			}()
+		case "Headers":
+			func() {
+				header = c.Headers(mtx, input, output, errs, log)
+			}()
 		case "Item":
 			func() {
 				item = c.Item(mtx, input, output, errs, log)
+			}()
+		case "Items":
+			func() {
+				item = c.Items(mtx, input, output, errs, log)
 			}()
 		case "Address":
 			func() {
@@ -80,6 +89,46 @@ func (c *DPFMAPICaller) Header(
 		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_header_data
 		WHERE InvoiceDocument = ?;`, invoiceDocument,
+	)
+	if err != nil {
+		*errs = append(*errs, err)
+		return nil
+	}
+
+	data, err := dpfm_api_output_formatter.ConvertToHeader(rows)
+	if err != nil {
+		*errs = append(*errs, err)
+		return nil
+	}
+
+	return data
+}
+
+func (c *DPFMAPICaller) Headers(
+	mtx *sync.Mutex,
+	input *dpfm_api_input_reader.SDC,
+	output *dpfm_api_output_formatter.SDC,
+	errs *[]error,
+	log *logger.Logger,
+) *[]dpfm_api_output_formatter.Header {
+	where := "WHERE 1 = 1"
+	if input.Header.Payee != nil {
+		where = fmt.Sprintf("%s\nAND Payee = %d", where, *input.Header.Payee)
+	}
+	if input.Header.Payer != nil {
+		where = fmt.Sprintf("%s\nAND Payer = %d", where, *input.Header.Payer)
+	}
+	if input.Header.BillFromParty != nil {
+		where = fmt.Sprintf("%s\nAND BillFromParty = %d", where, *input.Header.BillFromParty)
+	}
+	if input.Header.BillToParty != nil {
+		where = fmt.Sprintf("%s\nAND BillToParty = %d", where, *input.Header.BillToParty)
+	}
+
+	rows, err := c.db.Query(
+		`SELECT *
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_header_data
+		` + where + `;`,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
@@ -190,6 +239,46 @@ func (c *DPFMAPICaller) Item(
 		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_item_data
 		WHERE (InvoiceDocument, InvoiceDocumentItem) IN ( `+repeat+` );`, args...,
+	)
+	if err != nil {
+		*errs = append(*errs, err)
+		return nil
+	}
+
+	data, err := dpfm_api_output_formatter.ConvertToItem(rows)
+	if err != nil {
+		*errs = append(*errs, err)
+		return nil
+	}
+
+	return data
+}
+
+func (c *DPFMAPICaller) Items(
+	mtx *sync.Mutex,
+	input *dpfm_api_input_reader.SDC,
+	output *dpfm_api_output_formatter.SDC,
+	errs *[]error,
+	log *logger.Logger,
+) *[]dpfm_api_output_formatter.Item {
+	where := fmt.Sprintf("WHERE InvoiceDocument = %d", input.Header.InvoiceDocument)
+	if input.Header.Payee != nil {
+		where = fmt.Sprintf("%s\nAND Payee = %d", where, *input.Header.Payee)
+	}
+	if input.Header.Payer != nil {
+		where = fmt.Sprintf("%s\nAND Payer = %d", where, *input.Header.Payer)
+	}
+	if input.Header.BillFromParty != nil {
+		where = fmt.Sprintf("%s\nAND BillFromParty = %d", where, *input.Header.BillFromParty)
+	}
+	if input.Header.BillToParty != nil {
+		where = fmt.Sprintf("%s\nAND BillToParty = %d", where, *input.Header.BillToParty)
+	}
+
+	rows, err := c.db.Query(
+		`SELECT *
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_item_data
+		` + where + ` );`,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
