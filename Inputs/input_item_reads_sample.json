@@ -73,7 +73,7 @@
 		"IsCancelled": null,
 		"Item": [
 			{
-				"InvoiceDocumentItem": null,
+				"InvoiceDocumentItem": 1,
 				"InvoiceDocumentItemCategory": "",
 				"SupplyChainRelationshipID": null,
 				"SupplyChainRelationshipDeliveryID": null,
@@ -208,7 +208,7 @@
 	},
 	"api_schema": "DPFMInvoiceDocumentReads",
 	"accepter": [
-		"Header"
+		"Item"
 	],
 	"deleted": false
 }

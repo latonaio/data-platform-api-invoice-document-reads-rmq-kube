@@ -33,7 +33,7 @@
 		"ReferenceDocument": null
 	},
 	"InvoiceDocument": {
-		"InvoiceDocument": 90000001,
+		"InvoiceDocument": null,
 		"CreationDate": "",
 		"CreationTime": "",
 		"LastChangeDate": "",
@@ -41,12 +41,12 @@
 		"SupplyChainRelationshipID": null,
 		"SupplyChainRelationshipBillingID": null,
 		"SupplyChainRelationshipPaymentID": null,
-		"BillToParty": null,
-		"BillFromParty": null,
+		"BillToParty": 101,
+		"BillFromParty": 201,
 		"BillToCountry": "",
 		"BillFromCountry": "",
-		"Payer": null,
-		"Payee": null,
+		"Payer": 101,
+		"Payee": 201,
 		"InvoiceDocumentDate": "",
 		"InvoiceDocumentTime": "",
 		"InvoicePeriodStartDate": "",
@@ -208,7 +208,7 @@
 	},
 	"api_schema": "DPFMInvoiceDocumentReads",
 	"accepter": [
-		"Header"
+		"Headers"
 	],
 	"deleted": false
 }

@@ -144,6 +144,110 @@ func (c *DPFMAPICaller) Headers(
 	return data
 }
 
+func (c *DPFMAPICaller) Item(
+	mtx *sync.Mutex,
+	input *dpfm_api_input_reader.SDC,
+	output *dpfm_api_output_formatter.SDC,
+	errs *[]error,
+	log *logger.Logger,
+) *[]dpfm_api_output_formatter.Item {
+	var args []interface{}
+	invoiceDocument := input.Header.InvoiceDocument
+	item := input.Header.Item
+
+	cnt := 0
+	for _, v := range item {
+		args = append(args, invoiceDocument, v.InvoiceDocumentItem)
+		cnt++
+	}
+	repeat := strings.Repeat("(?,?),", cnt-1) + "(?,?)"
+	rows, err := c.db.Query(
+		`SELECT *
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_item_data
+		WHERE (InvoiceDocument, InvoiceDocumentItem) IN ( `+repeat+` );`, args...,
+	)
+	if err != nil {
+		*errs = append(*errs, err)
+		return nil
+	}
+
+	data, err := dpfm_api_output_formatter.ConvertToItem(rows)
+	if err != nil {
+		*errs = append(*errs, err)
+		return nil
+	}
+
+	return data
+}
+
+func (c *DPFMAPICaller) Items(
+	mtx *sync.Mutex,
+	input *dpfm_api_input_reader.SDC,
+	output *dpfm_api_output_formatter.SDC,
+	errs *[]error,
+	log *logger.Logger,
+) *[]dpfm_api_output_formatter.Item {
+	invoiceDocument := input.Header.InvoiceDocument
+
+	rows, err := c.db.Query(
+		`SELECT *
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_item_data
+		WHERE InvoiceDocument = ?;`, invoiceDocument,
+	)
+	if err != nil {
+		*errs = append(*errs, err)
+		return nil
+	}
+
+	data, err := dpfm_api_output_formatter.ConvertToItem(rows)
+	if err != nil {
+		*errs = append(*errs, err)
+		return nil
+	}
+
+	return data
+}
+
+func (c *DPFMAPICaller) ItemPricingElement(
+	mtx *sync.Mutex,
+	input *dpfm_api_input_reader.SDC,
+	output *dpfm_api_output_formatter.SDC,
+	errs *[]error,
+	log *logger.Logger,
+) *[]dpfm_api_output_formatter.ItemPricingElement {
+	var args []interface{}
+	invoiceDocument := input.Header.InvoiceDocument
+	item := input.Header.Item
+
+	cnt := 0
+	for _, v := range item {
+		itemPricingElement := v.ItemPricingElement
+		for _, w := range itemPricingElement {
+			args = append(args, invoiceDocument, v.InvoiceDocumentItem, w.PricingProcedureCounter)
+		}
+		cnt++
+	}
+	repeat := strings.Repeat("(?,?,?),", cnt-1) + "(?,?,?)"
+
+	rows, err := c.db.Query(
+		`SELECT *
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_item_pricing_element_data
+		WHERE (InvoiceDocument, InvoiceDocumentItem, PricingProcedureCounter) IN ( `+repeat+` );`, args...,
+	)
+	if err != nil {
+		*errs = append(*errs, err)
+		return nil
+	}
+
+	data, err := dpfm_api_output_formatter.ConvertToItemPricingElement(rows)
+	if err != nil {
+		*errs = append(*errs, err)
+		return nil
+	}
+
+	return data
+}
+
 func (c *DPFMAPICaller) Partner(
 	mtx *sync.Mutex,
 	input *dpfm_api_input_reader.SDC,
@@ -164,7 +268,7 @@ func (c *DPFMAPICaller) Partner(
 
 	rows, err := c.db.Query(
 		`SELECT *
-		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_partner_data
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_partner_data
 		WHERE (InvoiceDocument, PartnerFunction, BusinessPartner) IN ( `+repeat+` );`, args...,
 	)
 	if err != nil {
@@ -218,82 +322,6 @@ func (c *DPFMAPICaller) Address(
 	return data
 }
 
-func (c *DPFMAPICaller) Item(
-	mtx *sync.Mutex,
-	input *dpfm_api_input_reader.SDC,
-	output *dpfm_api_output_formatter.SDC,
-	errs *[]error,
-	log *logger.Logger,
-) *[]dpfm_api_output_formatter.Item {
-	var args []interface{}
-	invoiceDocument := input.Header.InvoiceDocument
-	item := input.Header.Item
-
-	cnt := 0
-	for _, v := range item {
-		args = append(args, invoiceDocument, v.InvoiceDocumentItem)
-		cnt++
-	}
-	repeat := strings.Repeat("(?,?),", cnt-1) + "(?,?)"
-	rows, err := c.db.Query(
-		`SELECT *
-		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_item_data
-		WHERE (InvoiceDocument, InvoiceDocumentItem) IN ( `+repeat+` );`, args...,
-	)
-	if err != nil {
-		*errs = append(*errs, err)
-		return nil
-	}
-
-	data, err := dpfm_api_output_formatter.ConvertToItem(rows)
-	if err != nil {
-		*errs = append(*errs, err)
-		return nil
-	}
-
-	return data
-}
-
-func (c *DPFMAPICaller) Items(
-	mtx *sync.Mutex,
-	input *dpfm_api_input_reader.SDC,
-	output *dpfm_api_output_formatter.SDC,
-	errs *[]error,
-	log *logger.Logger,
-) *[]dpfm_api_output_formatter.Item {
-	where := fmt.Sprintf("WHERE InvoiceDocument = %d", input.Header.InvoiceDocument)
-	if input.Header.Payee != nil {
-		where = fmt.Sprintf("%s\nAND Payee = %d", where, *input.Header.Payee)
-	}
-	if input.Header.Payer != nil {
-		where = fmt.Sprintf("%s\nAND Payer = %d", where, *input.Header.Payer)
-	}
-	if input.Header.BillFromParty != nil {
-		where = fmt.Sprintf("%s\nAND BillFromParty = %d", where, *input.Header.BillFromParty)
-	}
-	if input.Header.BillToParty != nil {
-		where = fmt.Sprintf("%s\nAND BillToParty = %d", where, *input.Header.BillToParty)
-	}
-
-	rows, err := c.db.Query(
-		`SELECT *
-		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_item_data
-		` + where + ` );`,
-	)
-	if err != nil {
-		*errs = append(*errs, err)
-		return nil
-	}
-
-	data, err := dpfm_api_output_formatter.ConvertToItem(rows)
-	if err != nil {
-		*errs = append(*errs, err)
-		return nil
-	}
-
-	return data
-}
-
 func (c *DPFMAPICaller) HeaderDoc(
 	mtx *sync.Mutex,
 	input *dpfm_api_input_reader.SDC,
@@ -323,46 +351,6 @@ func (c *DPFMAPICaller) HeaderDoc(
 	}
 
 	data, err := dpfm_api_output_formatter.ConvertToHeaderDoc(rows)
-	if err != nil {
-		*errs = append(*errs, err)
-		return nil
-	}
-
-	return data
-}
-
-func (c *DPFMAPICaller) ItemPricingElement(
-	mtx *sync.Mutex,
-	input *dpfm_api_input_reader.SDC,
-	output *dpfm_api_output_formatter.SDC,
-	errs *[]error,
-	log *logger.Logger,
-) *[]dpfm_api_output_formatter.ItemPricingElement {
-	var args []interface{}
-	invoiceDocument := input.Header.InvoiceDocument
-	item := input.Header.Item
-
-	cnt := 0
-	for _, v := range item {
-		itemPricingElement := v.ItemPricingElement
-		for _, w := range itemPricingElement {
-			args = append(args, invoiceDocument, v.InvoiceDocumentItem, w.PricingProcedureCounter)
-		}
-		cnt++
-	}
-	repeat := strings.Repeat("(?,?,?),", cnt-1) + "(?,?,?)"
-
-	rows, err := c.db.Query(
-		`SELECT *
-		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_item_pricing_element_data
-		WHERE (InvoiceDocument, InvoiceDocumentItem, PricingProcedureCounter) IN ( `+repeat+` );`, args...,
-	)
-	if err != nil {
-		*errs = append(*errs, err)
-		return nil
-	}
-
-	data, err := dpfm_api_output_formatter.ConvertToItemPricingElement(rows)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil

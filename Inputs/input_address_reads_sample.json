@@ -182,7 +182,7 @@
 		],
 		"Address": [
 			{
-				"AddressID": null,
+				"AddressID": 700010001,
 				"PostalCode": "",
 				"LocalRegion": "",
 				"Country": "",
@@ -208,7 +208,7 @@
 	},
 	"api_schema": "DPFMInvoiceDocumentReads",
 	"accepter": [
-		"Header"
+		"Address"
 	],
 	"deleted": false
 }

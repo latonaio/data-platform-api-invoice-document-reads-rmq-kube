@@ -64,7 +64,7 @@ type SDC struct {
 	ServiceLabel                   string                         `json:"service_label"`
 	APIType                        string                         `json:"api_type"`
 	InvoiceDocumentInputParameters InvoiceDocumentInputParameters `json:"InvoiceDocumentInputParameters"`
-	Header                         Header                         `json:"Orders"`
+	Header                         Header                         `json:"InvoiceDocument"`
 	APISchema                      string                         `json:"api_schema"`
 	Accepter                       []string                       `json:"accepter"`
 	Deleted                        bool                           `json:"deleted"`
@@ -118,35 +118,10 @@ type Header struct {
 	HeaderPaymentBlockStatus          *bool       `json:"HeaderPaymentBlockStatus"`
 	HeaderPaymentRequisitionIsCreated *bool       `json:"HeaderPaymentRequisitionIsCreated"`
 	IsCancelled                       *bool       `json:"IsCancelled"`
+	Item                              []Item      `json:"Item"`
 	HeaderDoc                         []HeaderDoc `json:"HeaderDoc"`
 	Partner                           []Partner   `json:"Partner"`
-	Item                              []Item      `json:"Item"`
 	Address                           []Address   `json:"Address"`
-}
-
-type HeaderDoc struct {
-	InvoiceDocument          int     `json:"InvoiceDocument"`
-	DocType                  string  `json:"DocType"`
-	DocVersionID             int     `json:"DocVersionID"`
-	DocID                    string  `json:"DocID"`
-	FileExtension            *string `json:"FileExtension"`
-	FileName                 *string `json:"FileName"`
-	FilePath                 *string `json:"FilePath"`
-	DocIssuerBusinessPartner *int    `json:"DocIssuerBusinessPartner"`
-}
-
-type Partner struct {
-	InvoiceDocument         int     `json:"InvoiceDocument"`
-	PartnerFunction         string  `json:"PartnerFunction"`
-	BusinessPartner         int     `json:"BusinessPartner"`
-	BusinessPartnerFullName *string `json:"BusinessPartnerFullName"`
-	BusinessPartnerName     *string `json:"BusinessPartnerName"`
-	Organization            *string `json:"Organization"`
-	Country                 *string `json:"Country"`
-	Language                *string `json:"Language"`
-	Currency                *string `json:"Currency"`
-	ExternalDocumentID      *string `json:"ExternalDocumentID"`
-	AddressID               *int    `json:"AddressID"`
 }
 
 type Item struct {
@@ -244,6 +219,31 @@ type ItemPricingElement struct {
 	ConditionAmount            *float32 `json:"ConditionAmount"`
 	TransactionCurrency        *string  `json:"TransactionCurrency"`
 	ConditionIsManuallyChanged *bool    `json:"ConditionIsManuallyChanged"`
+}
+
+type HeaderDoc struct {
+	InvoiceDocument          int     `json:"InvoiceDocument"`
+	DocType                  string  `json:"DocType"`
+	DocVersionID             int     `json:"DocVersionID"`
+	DocID                    string  `json:"DocID"`
+	FileExtension            *string `json:"FileExtension"`
+	FileName                 *string `json:"FileName"`
+	FilePath                 *string `json:"FilePath"`
+	DocIssuerBusinessPartner *int    `json:"DocIssuerBusinessPartner"`
+}
+
+type Partner struct {
+	InvoiceDocument         int     `json:"InvoiceDocument"`
+	PartnerFunction         string  `json:"PartnerFunction"`
+	BusinessPartner         int     `json:"BusinessPartner"`
+	BusinessPartnerFullName *string `json:"BusinessPartnerFullName"`
+	BusinessPartnerName     *string `json:"BusinessPartnerName"`
+	Organization            *string `json:"Organization"`
+	Country                 *string `json:"Country"`
+	Language                *string `json:"Language"`
+	Currency                *string `json:"Currency"`
+	ExternalDocumentID      *string `json:"ExternalDocumentID"`
+	AddressID               *int    `json:"AddressID"`
 }
 
 type Address struct {

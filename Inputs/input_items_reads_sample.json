@@ -208,7 +208,7 @@
 	},
 	"api_schema": "DPFMInvoiceDocumentReads",
 	"accepter": [
-		"Header"
+		"Items"
 	],
 	"deleted": false
 }

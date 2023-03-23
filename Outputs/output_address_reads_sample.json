@@ -1,0 +1,46 @@
+{
+	"connection_key": "request",
+	"result": true,
+	"redis_key": "abcdefg",
+	"filepath": "/var/lib/aion/Data/rededge_sdc/abcdef.json",
+	"api_status_code": 200,
+	"runtime_session_id": "boi9ar543dg91ipdnspi099u231280ab0v8af0ew",
+	"business_partner": 101,
+	"service_label": "INVOICE_DOCUMENT",
+	"api_type": "reads",
+	"message": {
+		"Header": null,
+		"Item": null,
+		"ItemPricingElement": null,
+		"Partner": null,
+		"Address": [
+			{
+				"InvoiceDocument": 90000001,
+				"AddressID": 700010001,
+				"PostalCode": "141-8643",
+				"LocalRegion": "13",
+				"Country": "JA",
+				"District": null,
+				"StreetName": "Osaki",
+				"CityName": "Shinagawa",
+				"Building": null,
+				"Floor": null,
+				"Room": null
+			}
+		],
+		"HeaderDoc": null
+	},
+	"api_schema": "DPFMInvoiceDocumentReads",
+	"accepter": [
+		"Address"
+	],
+	"deleted": false,
+	"sql_update_result": null,
+	"sql_update_error": "",
+	"subfunc_result": null,
+	"subfunc_error": "",
+	"exconf_result": null,
+	"exconf_error": "",
+	"api_processing_result": true,
+	"api_processing_error": ""
+}

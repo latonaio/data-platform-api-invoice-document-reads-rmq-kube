@@ -168,8 +168,8 @@
 		],
 		"Partner": [
 			{
-				"PartnerFunction": "",
-				"BusinessPartner": null,
+				"PartnerFunction": "BUYER",
+				"BusinessPartner": 101,
 				"BusinessPartnerFullName": "",
 				"BusinessPartnerName": "",
 				"Organization": "",
@@ -208,7 +208,7 @@
 	},
 	"api_schema": "DPFMInvoiceDocumentReads",
 	"accepter": [
-		"Header"
+		"Partner"
 	],
 	"deleted": false
 }

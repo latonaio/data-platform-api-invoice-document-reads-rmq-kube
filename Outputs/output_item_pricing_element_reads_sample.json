@@ -1,0 +1,50 @@
+{
+	"connection_key": "request",
+	"result": true,
+	"redis_key": "abcdefg",
+	"filepath": "/var/lib/aion/Data/rededge_sdc/abcdef.json",
+	"api_status_code": 200,
+	"runtime_session_id": "boi9ar543dg91ipdnspi099u231280ab0v8af0ew",
+	"business_partner": 101,
+	"service_label": "INVOICE_DOCUMENT",
+	"api_type": "reads",
+	"message": {
+		"Header": null,
+		"Item": null,
+		"ItemPricingElement": [
+			{
+				"InvoiceDocument": 90000001,
+				"InvoiceDocumentItem": 1,
+				"PricingProcedureCounter": 1,
+				"ConditionRecord": 652,
+				"ConditionSequentialNumber": 0,
+				"ConditionType": "PR00",
+				"PricingDate": "2023-02-13",
+				"ConditionRateValue": 10000,
+				"ConditionCurrency": "JPY",
+				"ConditionQuantity": 20,
+				"ConditionQuantityUnit": "PC",
+				"TaxCode": null,
+				"ConditionAmount": 200000,
+				"TransactionCurrency": null,
+				"ConditionIsManuallyChanged": false
+			}
+		],
+		"Partner": null,
+		"Address": null,
+		"HeaderDoc": null
+	},
+	"api_schema": "DPFMInvoiceDocumentReads",
+	"accepter": [
+		"ItemPricingElement"
+	],
+	"deleted": false,
+	"sql_update_result": null,
+	"sql_update_error": "",
+	"subfunc_result": null,
+	"subfunc_error": "",
+	"exconf_result": null,
+	"exconf_error": "",
+	"api_processing_result": true,
+	"api_processing_error": ""
+}
