@@ -88,7 +88,8 @@ func (c *DPFMAPICaller) Header(
 	rows, err := c.db.Query(
 		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_header_data
-		WHERE InvoiceDocument = ?;`, invoiceDocument,
+		WHERE InvoiceDocument = ? 
+		ORDER BY IsCancelled ASC, InvoiceDocument DESC;`, invoiceDocument,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
@@ -128,7 +129,7 @@ func (c *DPFMAPICaller) Headers(
 	rows, err := c.db.Query(
 		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_header_data
-		` + where + `;`,
+		` + where + ` ORDER BY IsCancelled ASC, InvoiceDocument DESC;`,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
@@ -164,7 +165,8 @@ func (c *DPFMAPICaller) Item(
 	rows, err := c.db.Query(
 		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_item_data
-		WHERE (InvoiceDocument, InvoiceDocumentItem) IN ( `+repeat+` );`, args...,
+		WHERE (InvoiceDocument, InvoiceDocumentItem) IN ( `+repeat+` ) 
+		ORDER BY IsCancelled ASC, InvoiceDocument ASC, InvoiceDocumentItem ASC;`, args...,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
@@ -192,7 +194,8 @@ func (c *DPFMAPICaller) Items(
 	rows, err := c.db.Query(
 		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_item_data
-		WHERE InvoiceDocument = ?;`, invoiceDocument,
+		WHERE InvoiceDocument = ? 
+		ORDER BY IsCancelled ASC, InvoiceDocument ASC, InvoiceDocumentItem ASC;`, invoiceDocument,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
@@ -232,7 +235,8 @@ func (c *DPFMAPICaller) ItemPricingElement(
 	rows, err := c.db.Query(
 		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_item_pricing_element_data
-		WHERE (InvoiceDocument, InvoiceDocumentItem, PricingProcedureCounter) IN ( `+repeat+` );`, args...,
+		WHERE (InvoiceDocument, InvoiceDocumentItem, PricingProcedureCounter) IN ( `+repeat+` ) 
+		ORDER BY InvoiceDocument DESC, InvoiceDocumentItem ASC, PricingProcedureCounter ASC;`, args...,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
@@ -269,7 +273,8 @@ func (c *DPFMAPICaller) Partner(
 	rows, err := c.db.Query(
 		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_partner_data
-		WHERE (InvoiceDocument, PartnerFunction, BusinessPartner) IN ( `+repeat+` );`, args...,
+		WHERE (InvoiceDocument, PartnerFunction, BusinessPartner) IN ( `+repeat+` ) 
+		ORDER BY InvoiceDocument DESC, BusinessPartner DESC, AddressID DESC;`, args...,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
@@ -306,7 +311,8 @@ func (c *DPFMAPICaller) Address(
 	rows, err := c.db.Query(
 		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_address_data
-		WHERE (InvoiceDocument, AddressID) IN ( `+repeat+` );`, args...,
+		WHERE (InvoiceDocument, AddressID) IN ( `+repeat+` ) 
+		ORDER BY InvoiceDocument DESC, AddressID DESC;`, args...,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
