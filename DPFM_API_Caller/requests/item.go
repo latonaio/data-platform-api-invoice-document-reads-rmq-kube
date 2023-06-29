@@ -13,10 +13,6 @@ type Item struct {
 	Product                                 *string  `json:"Product"`
 	ProductGroup                            *string  `json:"ProductGroup"`
 	ProductStandardID                       *string  `json:"ProductStandardID"`
-	CreationDate                            *string  `json:"CreationDate"`
-	CreationTime                            *string  `json:"CreationTime"`
-	LastChangeDate                          *string  `json:"LastChangeDate"`
-	LastChangeTime                          *string  `json:"LastChangeTime"`
 	ItemBillingIsConfirmed                  *bool    `json:"ItemBillingIsConfirmed"`
 	Buyer                                   *int     `json:"Buyer"`
 	Seller                                  *int     `json:"Seller"`
@@ -34,6 +30,7 @@ type Item struct {
 	InvoiceQuantityUnit                     *string  `json:"InvoiceQuantityUnit"`
 	InvoiceQuantityInBaseUnit               *float32 `json:"InvoiceQuantityInBaseUnit"`
 	BaseUnit                                *string  `json:"BaseUnit"`
+	DeliveryUnit                            *string  `json:"DeliveryUnit"`
 	ActualGoodsIssueDate                    *string  `json:"ActualGoodsIssueDate"`
 	ActualGoodsIssueTime                    *string  `json:"ActualGoodsIssueTime"`
 	ActualGoodsReceiptDate                  *string  `json:"ActualGoodsReceiptDate"`
@@ -51,7 +48,8 @@ type Item struct {
 	ProductTaxClassificationBillToCountry   *string  `json:"ProductTaxClassificationBillToCountry"`
 	ProductTaxClassificationBillFromCountry *string  `json:"ProductTaxClassificationBillFromCountry"`
 	DefinedTaxClassification                *string  `json:"DefinedTaxClassification"`
-	Project                                 *string  `json:"Project"`
+	Project                                 *int     `json:"Project"`
+	WBSElement                              *int     `json:"WBSElement"`
 	OrderID                                 *int     `json:"OrderID"`
 	OrderItem                               *int     `json:"OrderItem"`
 	OrderType                               *string  `json:"OrderType"`
@@ -72,8 +70,13 @@ type Item struct {
 	TaxRate                                 *float32 `json:"TaxRate"`
 	CountryOfOrigin                         *string  `json:"CountryOfOrigin"`
 	CountryOfOriginLanguage                 *string  `json:"CountryOfOriginLanguage"`
+	Equipment                        		*int     `json:"Equipment"`
 	ItemPaymentRequisitionIsCreated         *bool    `json:"ItemPaymentRequisitionIsCreated"`
 	ItemIsCleared                           *bool    `json:"ItemIsCleared"`
 	ItemPaymentBlockStatus                  *bool    `json:"ItemPaymentBlockStatus"`
+	CreationDate                            *string  `json:"CreationDate"`
+	CreationTime                            *string  `json:"CreationTime"`
+	LastChangeDate                          *string  `json:"LastChangeDate"`
+	LastChangeTime                          *string  `json:"LastChangeTime"`
 	IsCancelled                             *bool    `json:"IsCancelled"`
 }

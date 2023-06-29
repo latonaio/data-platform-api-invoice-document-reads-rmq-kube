@@ -35,10 +35,6 @@ type Message struct {
 
 type Header struct {
 	InvoiceDocument                   int      `json:"InvoiceDocument"`
-	CreationDate                      *string  `json:"CreationDate"`
-	CreationTime                      *string  `json:"CreationTime"`
-	LastChangeDate                    *string  `json:"LastChangeDate"`
-	LastChangeTime                    *string  `json:"LastChangeTime"`
 	SupplyChainRelationshipID         *int     `json:"SupplyChainRelationshipID"`
 	SupplyChainRelationshipBillingID  *int     `json:"SupplyChainRelationshipBillingID"`
 	SupplyChainRelationshipPaymentID  *int     `json:"SupplyChainRelationshipPaymentID"`
@@ -71,6 +67,10 @@ type Header struct {
 	HeaderIsCleared                   *bool    `json:"HeaderIsCleared"`
 	HeaderPaymentBlockStatus          *bool    `json:"HeaderPaymentBlockStatus"`
 	HeaderPaymentRequisitionIsCreated *bool    `json:"HeaderPaymentRequisitionIsCreated"`
+	CreationDate                      *string  `json:"CreationDate"`
+	CreationTime                      *string  `json:"CreationTime"`
+	LastChangeDate                    *string  `json:"LastChangeDate"`
+	LastChangeTime                    *string  `json:"LastChangeTime"`
 	IsCancelled                       *bool    `json:"IsCancelled"`
 }
 
@@ -87,10 +87,6 @@ type Item struct {
 	Product                                 *string  `json:"Product"`
 	ProductGroup                            *string  `json:"ProductGroup"`
 	ProductStandardID                       *string  `json:"ProductStandardID"`
-	CreationDate                            *string  `json:"CreationDate"`
-	CreationTime                            *string  `json:"CreationTime"`
-	LastChangeDate                          *string  `json:"LastChangeDate"`
-	LastChangeTime                          *string  `json:"LastChangeTime"`
 	ItemBillingIsConfirmed                  *bool    `json:"ItemBillingIsConfirmed"`
 	Buyer                                   *int     `json:"Buyer"`
 	Seller                                  *int     `json:"Seller"`
@@ -108,6 +104,7 @@ type Item struct {
 	InvoiceQuantityUnit                     *string  `json:"InvoiceQuantityUnit"`
 	InvoiceQuantityInBaseUnit               *float32 `json:"InvoiceQuantityInBaseUnit"`
 	BaseUnit                                *string  `json:"BaseUnit"`
+	DeliveryUnit                            *string  `json:"DeliveryUnit"`
 	ActualGoodsIssueDate                    *string  `json:"ActualGoodsIssueDate"`
 	ActualGoodsIssueTime                    *string  `json:"ActualGoodsIssueTime"`
 	ActualGoodsReceiptDate                  *string  `json:"ActualGoodsReceiptDate"`
@@ -125,7 +122,8 @@ type Item struct {
 	ProductTaxClassificationBillToCountry   *string  `json:"ProductTaxClassificationBillToCountry"`
 	ProductTaxClassificationBillFromCountry *string  `json:"ProductTaxClassificationBillFromCountry"`
 	DefinedTaxClassification                *string  `json:"DefinedTaxClassification"`
-	Project                                 *string  `json:"Project"`
+	Project                                 *int     `json:"Project"`
+	WBSElement                              *int     `json:"WBSElement"`
 	OrderID                                 *int     `json:"OrderID"`
 	OrderItem                               *int     `json:"OrderItem"`
 	OrderType                               *string  `json:"OrderType"`
@@ -146,9 +144,14 @@ type Item struct {
 	TaxRate                                 *float32 `json:"TaxRate"`
 	CountryOfOrigin                         *string  `json:"CountryOfOrigin"`
 	CountryOfOriginLanguage                 *string  `json:"CountryOfOriginLanguage"`
+	Equipment                        		*int     `json:"Equipment"`
 	ItemPaymentRequisitionIsCreated         *bool    `json:"ItemPaymentRequisitionIsCreated"`
 	ItemIsCleared                           *bool    `json:"ItemIsCleared"`
 	ItemPaymentBlockStatus                  *bool    `json:"ItemPaymentBlockStatus"`
+	CreationDate                            *string  `json:"CreationDate"`
+	CreationTime                            *string  `json:"CreationTime"`
+	LastChangeDate                          *string  `json:"LastChangeDate"`
+	LastChangeTime                          *string  `json:"LastChangeTime"`
 	IsCancelled                             *bool    `json:"IsCancelled"`
 }
 
@@ -156,18 +159,27 @@ type ItemPricingElement struct {
 	InvoiceDocument            int      `json:"InvoiceDocument"`
 	InvoiceDocumentItem        int      `json:"InvoiceDocumentItem"`
 	PricingProcedureCounter    int      `json:"PricingProcedureCounter"`
+	SupplyChainRelationshipID  int		`json:"SupplyChainRelationshipID"`
+	Buyer					   int		`json:"Buyer"`
+	Seller					   int		`json:"Seller"`
 	ConditionRecord            *int     `json:"ConditionRecord"`
 	ConditionSequentialNumber  *int     `json:"ConditionSequentialNumber"`
 	ConditionType              *string  `json:"ConditionType"`
 	PricingDate                *string  `json:"PricingDate"`
 	ConditionRateValue         *float32 `json:"ConditionRateValue"`
+	ConditionRateValueUnit     *int  	`json:"ConditionRateValueUnit"`
+	ConditionScaleQuantity     *int  	`json:"ConditionScaleQuantity"`
 	ConditionCurrency          *string  `json:"ConditionCurrency"`
 	ConditionQuantity          *float32 `json:"ConditionQuantity"`
-	ConditionQuantityUnit      *string  `json:"ConditionQuantityUnit"`
 	TaxCode                    *string  `json:"TaxCode"`
 	ConditionAmount            *float32 `json:"ConditionAmount"`
 	TransactionCurrency        *string  `json:"TransactionCurrency"`
 	ConditionIsManuallyChanged *bool    `json:"ConditionIsManuallyChanged"`
+	CreationDate               *string  `json:"CreationDate"`
+	CreationTime               *string  `json:"CreationTime"`
+	LastChangeDate             *string  `json:"LastChangeDate"`
+	LastChangeTime             *string  `json:"LastChangeTime"`
+	IsCancelled                *bool    `json:"IsCancelled"`
 }
 
 type HeaderDoc struct {
