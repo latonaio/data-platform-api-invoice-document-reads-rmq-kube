@@ -22,19 +22,27 @@ func (c *DPFMAPICaller) readSqlProcess(
 ) interface{} {
 	var header *[]dpfm_api_output_formatter.Header
 	var item *[]dpfm_api_output_formatter.Item
-	var address *[]dpfm_api_output_formatter.Address
-	var headerDoc *[]dpfm_api_output_formatter.HeaderDoc
-	var partner *[]dpfm_api_output_formatter.Partner
 	var itemPricingElement *[]dpfm_api_output_formatter.ItemPricingElement
+	var address *[]dpfm_api_output_formatter.Address
+	var partner *[]dpfm_api_output_formatter.Partner
+	var headerDoc *[]dpfm_api_output_formatter.HeaderDoc
 	for _, fn := range accepter {
 		switch fn {
 		case "Header":
 			func() {
 				header = c.Header(mtx, input, output, errs, log)
 			}()
-		case "Headers":
+//		case "Headers":
+//			func() {
+//				header = c.Headers(mtx, input, output, errs, log)
+//			}()
+		case "HeadersByBillToParty":
 			func() {
-				header = c.Headers(mtx, input, output, errs, log)
+				header = c.HeadersByBillToParty(mtx, input, output, errs, log)
+			}()
+		case "HeadersByBillFromParty":
+			func() {
+				header = c.HeadersByBillFromParty(mtx, input, output, errs, log)
 			}()
 		case "Item":
 			func() {
@@ -67,10 +75,10 @@ func (c *DPFMAPICaller) readSqlProcess(
 	data := &dpfm_api_output_formatter.Message{
 		Header:             header,
 		Item:               item,
-		Address:            address,
-		HeaderDoc:          headerDoc,
-		Partner:            partner,
 		ItemPricingElement: itemPricingElement,
+		Address:            address,
+		Partner:            partner,
+		HeaderDoc:          headerDoc,
 	}
 
 	return data
@@ -105,38 +113,35 @@ func (c *DPFMAPICaller) Header(
 	return data
 }
 
-func (c *DPFMAPICaller) Headers(
+func (c *DPFMAPICaller) HeadersByBillToParty(
 	mtx *sync.Mutex,
 	input *dpfm_api_input_reader.SDC,
 	output *dpfm_api_output_formatter.SDC,
 	errs *[]error,
 	log *logger.Logger,
-) *[]dpfm_api_output_formatter.Header {
-	where := "WHERE 1 = 1"
-	if input.Header.Payee != nil {
-		where = fmt.Sprintf("%s\nAND Payee = %d", where, *input.Header.Payee)
-	}
-	if input.Header.Payer != nil {
-		where = fmt.Sprintf("%s\nAND Payer = %d", where, *input.Header.Payer)
-	}
-	if input.Header.BillFromParty != nil {
-		where = fmt.Sprintf("%s\nAND BillFromParty = %d", where, *input.Header.BillFromParty)
-	}
-	if input.Header.BillToParty != nil {
-		where = fmt.Sprintf("%s\nAND BillToParty = %d", where, *input.Header.BillToParty)
-	}
+) []dpfm_api_output_formatter.Header {
+	billToParty 					:= input.Header.BillToParty
+	isCancelled						:= input.Header.IsCancelled
+	isMarkedForDeletion 			:= input.Header.IsMarkedForDeletion
 
 	rows, err := c.db.Query(
 		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_header_data
-		` + where + ` ORDER BY IsCancelled ASC, InvoiceDocument DESC;`,
+		WHERE (
+		       BillToParty,
+		       IsCancelled,
+		       IsMarkedForDeletion
+		) = (?, ?, ?);`,
+		billToParty,
+		isCancelled,
+		isMarkedForDeletion,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
 	}
 
-	data, err := dpfm_api_output_formatter.ConvertToHeader(rows)
+	data, err := dpfm_api_output_formatter.ConvertToHeader(input, rows)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
@@ -144,6 +149,83 @@ func (c *DPFMAPICaller) Headers(
 
 	return data
 }
+
+func (c *DPFMAPICaller) HeadersByBillFromParty(
+	mtx *sync.Mutex,
+	input *dpfm_api_input_reader.SDC,
+	output *dpfm_api_output_formatter.SDC,
+	errs *[]error,
+	log *logger.Logger,
+) []dpfm_api_output_formatter.Header {
+	billFromParty 					:= input.Header.BillFromParty
+	isCancelled						:= input.Header.IsCancelled
+	isMarkedForDeletion 			:= input.Header.IsMarkedForDeletion
+
+	rows, err := c.db.Query(
+		`SELECT *
+		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_header_data
+		WHERE (
+		       BillFromParty,
+		       IsCancelled,
+		       IsMarkedForDeletion
+		) = (?, ?, ?);`,
+		billFromParty,
+		isCancelled,
+		isMarkedForDeletion,
+	)
+	if err != nil {
+		*errs = append(*errs, err)
+		return nil
+	}
+
+	data, err := dpfm_api_output_formatter.ConvertToHeader(input, rows)
+	if err != nil {
+		*errs = append(*errs, err)
+		return nil
+	}
+
+	return data
+}
+
+//func (c *DPFMAPICaller) Headers(
+//	mtx *sync.Mutex,
+//	input *dpfm_api_input_reader.SDC,
+//	output *dpfm_api_output_formatter.SDC,
+//	errs *[]error,
+//	log *logger.Logger,
+//) *[]dpfm_api_output_formatter.Header {
+//	where := "WHERE 1 = 1"
+//	if input.Header.Payee != nil {
+//		where = fmt.Sprintf("%s\nAND Payee = %d", where, *input.Header.Payee)
+//	}
+//	if input.Header.Payer != nil {
+//		where = fmt.Sprintf("%s\nAND Payer = %d", where, *input.Header.Payer)
+//	}
+//	if input.Header.BillFromParty != nil {
+//		where = fmt.Sprintf("%s\nAND BillFromParty = %d", where, *input.Header.BillFromParty)
+//	}
+//	if input.Header.BillToParty != nil {
+//		where = fmt.Sprintf("%s\nAND BillToParty = %d", where, *input.Header.BillToParty)
+//	}
+//
+//	rows, err := c.db.Query(
+//		`SELECT *
+//		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_header_data
+//		` + where + ` ORDER BY IsCancelled ASC, InvoiceDocument DESC;`,
+//	)
+//	if err != nil {
+//		*errs = append(*errs, err)
+//		return nil
+//	}
+//
+//	data, err := dpfm_api_output_formatter.ConvertToHeader(rows)
+//	if err != nil {
+//		*errs = append(*errs, err)
+//		return nil
+//	}
+//
+//	return data
+//}
 
 func (c *DPFMAPICaller) Item(
 	mtx *sync.Mutex,
