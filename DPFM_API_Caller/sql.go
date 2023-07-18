@@ -120,21 +120,24 @@ func (c *DPFMAPICaller) HeadersByBillToParty(
 	errs *[]error,
 	log *logger.Logger,
 ) []dpfm_api_output_formatter.Header {
-	billToParty 					:= input.Header.BillToParty
-	isCancelled						:= input.Header.IsCancelled
-	isMarkedForDeletion 			:= input.Header.IsMarkedForDeletion
+	where := "WHERE 1 = 1"
+	if input.Header.BillToParty != nil {
+		where = fmt.Sprintf("%s\nAND BillToParty = %v", where, *input.Header.BillToParty)
+	}
+	if input.Header.HeaderBillingIsConfirmed != nil {
+		where = fmt.Sprintf("%s\nAND HeaderBillingIsConfirmed = %t", where, *input.Header.HeaderBillingIsConfirmed)
+	}
+	if input.Header.HeaderIsCleared != nil {
+		where = fmt.Sprintf("%s\nAND HeaderIsCleared = %t", where, *input.Header.HeaderIsCleared)
+	}
+	if input.Header.IsCancelled != nil {
+		where = fmt.Sprintf("%s\nAND IsCancelled = %t", where, *input.Header.IsCancelled)
+	}
 
 	rows, err := c.db.Query(
 		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_header_data
-		WHERE (
-		       BillToParty,
-		       IsCancelled,
-		       IsMarkedForDeletion
-		) = (?, ?, ?);`,
-		billToParty,
-		isCancelled,
-		isMarkedForDeletion,
+		` + where + `;`,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
@@ -157,21 +160,24 @@ func (c *DPFMAPICaller) HeadersByBillFromParty(
 	errs *[]error,
 	log *logger.Logger,
 ) []dpfm_api_output_formatter.Header {
-	billFromParty 					:= input.Header.BillFromParty
-	isCancelled						:= input.Header.IsCancelled
-	isMarkedForDeletion 			:= input.Header.IsMarkedForDeletion
+	where := "WHERE 1 = 1"
+	if input.Header.BillFromParty != nil {
+		where = fmt.Sprintf("%s\nAND BillFromParty = %v", where, *input.Header.BillFromParty)
+	}
+	if input.Header.HeaderBillingIsConfirmed != nil {
+		where = fmt.Sprintf("%s\nAND HeaderBillingIsConfirmed = %t", where, *input.Header.HeaderBillingIsConfirmed)
+	}
+	if input.Header.HeaderIsCleared != nil {
+		where = fmt.Sprintf("%s\nAND HeaderIsCleared = %t", where, *input.Header.HeaderIsCleared)
+	}
+	if input.Header.IsCancelled != nil {
+		where = fmt.Sprintf("%s\nAND IsCancelled = %t", where, *input.Header.IsCancelled)
+	}
 
 	rows, err := c.db.Query(
 		`SELECT *
 		FROM DataPlatformMastersAndTransactionsMysqlKube.data_platform_invoice_document_header_data
-		WHERE (
-		       BillFromParty,
-		       IsCancelled,
-		       IsMarkedForDeletion
-		) = (?, ?, ?);`,
-		billFromParty,
-		isCancelled,
-		isMarkedForDeletion,
+		` + where + `;`,
 	)
 	if err != nil {
 		*errs = append(*errs, err)
@@ -186,6 +192,7 @@ func (c *DPFMAPICaller) HeadersByBillFromParty(
 
 	return data
 }
+
 
 //func (c *DPFMAPICaller) Headers(
 //	mtx *sync.Mutex,
