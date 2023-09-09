@@ -30,7 +30,6 @@ type Message struct {
 	ItemPricingElement *[]ItemPricingElement `json:"ItemPricingElement"`
 	Partner            *[]Partner            `json:"Partner"`
 	Address            *[]Address            `json:"Address"`
-	HeaderDoc          *[]HeaderDoc          `json:"HeaderDoc"`
 }
 
 type Header struct {
@@ -182,17 +181,6 @@ type ItemPricingElement struct {
 	LastChangeDate             *string  `json:"LastChangeDate"`
 	LastChangeTime             *string  `json:"LastChangeTime"`
 	IsCancelled                *bool    `json:"IsCancelled"`
-}
-
-type HeaderDoc struct {
-	InvoiceDocument          int     `json:"InvoiceDocument"`
-	DocType                  string  `json:"DocType"`
-	DocVersionID             int     `json:"DocVersionID"`
-	DocID                    string  `json:"DocID"`
-	FileExtension            *string `json:"FileExtension"`
-	FileName                 *string `json:"FileName"`
-	FilePath                 *string `json:"FilePath"`
-	DocIssuerBusinessPartner *int    `json:"DocIssuerBusinessPartner"`
 }
 
 type Partner struct {

@@ -5,42 +5,48 @@
 	"filepath": "/var/lib/aion/Data/rededge_sdc/abcdef.json",
 	"api_status_code": 200,
 	"runtime_session_id": "boi9ar543dg91ipdnspi099u231280ab0v8af0ew",
-	"business_partner": 101,
+	"business_partner": null,
 	"service_label": "INVOICE_DOCUMENT",
 	"api_type": "reads",
-	"InputParameters": {
-		"InvoiceDocumentDate": "",
+	"InvoiceDocumentInputParameters": {
+		"InvoiceDocumentDate": [
+			"",
+			""
+		],
+		"InvoiceDocumentDateTo": "",
+		"InvoiceDocumentDateFrom": "",
 		"BillFromParty": [
+			null,
 			null
 		],
 		"BillFromPartyTo": null,
 		"BillFromPartyFrom": null,
 		"BillToParty": [
+			null,
 			null
 		],
 		"BillToPartyTo": null,
 		"BillToPartyFrom": null,
 		"ConfirmedDeliveryDate": [
+			"",
 			""
 		],
 		"ConfirmedDeliveryDateTo": "",
 		"ConfirmedDeliveryDateFrom": "",
 		"ActualGoodsIssueDate": [
+			"",
 			""
 		],
 		"ActualGoodsIssueDateTo": "",
-		"ActualGoodsIssueDateFrom": "",
-		"ReferenceDocument": null
+		"ActualGoodsIssueDateFrom": ""
 	},
 	"InvoiceDocument": {
-		"InvoiceDocument": 90000001,
-		"CreationDate": "",
-		"CreationTime": "",
-		"LastChangeDate": "",
-		"LastChangeTime": "",
+		"InvoiceDocument": null,
 		"SupplyChainRelationshipID": null,
 		"SupplyChainRelationshipBillingID": null,
 		"SupplyChainRelationshipPaymentID": null,
+		"Buyer": null,
+		"Seller": null,
 		"BillToParty": null,
 		"BillFromParty": null,
 		"BillToCountry": "",
@@ -70,7 +76,36 @@
 		"HeaderIsCleared": null,
 		"HeaderPaymentBlockStatus": null,
 		"HeaderPaymentRequisitionIsCreated": null,
+		"CreationDate": "",
+		"CreationTime": "",
+		"LastChangeDate": "",
+		"LastChangeTime": "",
 		"IsCancelled": null,
+		"HeaderDoc": [
+			{
+				"DocType": "",
+				"DocVersionID": null,
+				"DocID": "",
+				"FileExtension": "",
+				"FileName": "",
+				"FilePath": "",
+				"DocIssuerBusinessPartner": null
+			}
+		],
+		"Address": [
+			{
+				"AddressID": null,
+				"PostalCode": "",
+				"LocalRegion": "",
+				"Country": "",
+				"District": "",
+				"StreetName": "",
+				"CityName": "",
+				"Building": "",
+				"Floor": null,
+				"Room": null
+			}
+		],
 		"Item": [
 			{
 				"InvoiceDocumentItem": null,
@@ -84,10 +119,6 @@
 				"Product": "",
 				"ProductGroup": "",
 				"ProductStandardID": "",
-				"CreationDate": "",
-				"CreationTime": "",
-				"LastChangeDate": "",
-				"LastChangeTime": "",
 				"ItemBillingIsConfirmed": null,
 				"Buyer": null,
 				"Seller": null,
@@ -97,7 +128,7 @@
 				"DeliverToPlantStorageLocation": "",
 				"DeliverFromPlant": "",
 				"DeliverFromPlantStorageLocation": "",
-				"ProductionPlantBusinessPartner": null,
+				"ProductionPlantBusinessPartner": "",
 				"ProductionPlant": "",
 				"ProductionPlantStorageLocation": "",
 				"ServicesRenderedDate": "",
@@ -105,6 +136,7 @@
 				"InvoiceQuantityUnit": "",
 				"InvoiceQuantityInBaseUnit": null,
 				"BaseUnit": "",
+				"DeliveryUnit": "",
 				"ActualGoodsIssueDate": "",
 				"ActualGoodsIssueTime": "",
 				"ActualGoodsReceiptDate": "",
@@ -122,13 +154,14 @@
 				"ProductTaxClassificationBillToCountry": "",
 				"ProductTaxClassificationBillFromCountry": "",
 				"DefinedTaxClassification": "",
-				"Project": "",
+				"Project": null,
+				"WBSElement": null,
 				"OrderID": null,
 				"OrderItem": null,
 				"OrderType": "",
 				"ContractType": "",
 				"OrderVaridityStartDate": "",
-				"OrderVaridityEndDate": "",
+				"OrderValidityEndDate": "",
 				"InvoicePeriodStartDate": "",
 				"InvoicePeriodEndDate": "",
 				"DeliveryDocument": null,
@@ -143,72 +176,57 @@
 				"TaxRate": null,
 				"CountryOfOrigin": "",
 				"CountryOfOriginLanguage": "",
+				"Equipment": null,
 				"ItemPaymentRequisitionIsCreated": null,
 				"ItemIsCleared": null,
 				"ItemPaymentBlockStatus": null,
+				"CreationDate": "",
+				"CreationTime": "",
+				"LastChangeDate": "",
+				"LastChangeTime": "",
 				"IsCancelled": null,
+				"ItemDoc": [
+					{
+						"DocType": "",
+						"DocVersionID": null,
+						"DocID": "",
+						"FileExtension": "",
+						"FileName": "",
+						"FilePath": "",
+						"DocIssuerBusinessPartner": null
+					}
+				],
 				"ItemPricingElement": [
 					{
 						"PricingProcedureCounter": null,
+						"SupplyChainRelationshipID": null,
+						"Buyer": null,
+						"Seller": null,
 						"ConditionRecord": null,
 						"ConditionSequentialNumber": null,
 						"ConditionType": "",
 						"PricingDate": "",
 						"ConditionRateValue": null,
+						"ConditionRateValueUnit": null,
+						"ConditionScaleQuantity": null,
 						"ConditionCurrency": "",
 						"ConditionQuantity": null,
-						"ConditionQuantityUnit": "",
 						"TaxCode": "",
 						"ConditionAmount": null,
 						"TransactionCurrency": "",
-						"ConditionIsManuallyChanged": null
+						"ConditionIsManuallyChanged": null,
+						"CreationDate": "",
+						"CreationTime": "",
+						"LastChangeDate": "",
+						"LastChangeTime": "",
+						"IsCancelled": null
 					}
 				]
-			}
-		],
-		"Partner": [
-			{
-				"PartnerFunction": "",
-				"BusinessPartner": null,
-				"BusinessPartnerFullName": "",
-				"BusinessPartnerName": "",
-				"Organization": "",
-				"Country": "",
-				"Language": "",
-				"Currency": "",
-				"ExternalDocumentID": "",
-				"AddressID": null
-			}
-		],
-		"Address": [
-			{
-				"AddressID": null,
-				"PostalCode": "",
-				"LocalRegion": "",
-				"Country": "",
-				"District": "",
-				"StreetName": "",
-				"CityName": "",
-				"Building": "",
-				"Floor": null,
-				"Room": null
-			}
-		],
-		"HeaderDoc": [
-			{
-				"DocType": "",
-				"DocVersionID": null,
-				"DocID": "",
-				"FileExtension": "",
-				"FileName": "",
-				"FilePath": "",
-				"DocIssuerBusinessPartner": null
 			}
 		]
 	},
 	"api_schema": "DPFMInvoiceDocumentReads",
 	"accepter": [
 		"Header"
-	],
-	"deleted": false
+	]
 }
